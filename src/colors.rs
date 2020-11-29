@@ -2,6 +2,8 @@ use terminfo::{capability as cap, Database};
 
 use super::opts::{Color, Opts};
 
+const NOCOLOR_TERMS: &[&str] = &["dumb"];
+
 pub struct Colors {
     pub file: String,
     pub line_no: String,
@@ -9,26 +11,32 @@ pub struct Colors {
 }
 
 impl Colors {
+    // determine what colors to use
+    pub fn get(opts: &Opts) -> Colors {
+        match opts.color {
+            Color::Auto => {
+let term = std::env::var("TERM").unwrap_or_default().to_lowercase();
+if NOCOLOR_TERMS.contains(&term.as_str()) {
+    return Colors::none();
+}
 
-// determine what colors to use
-pub fn get(opts: &Opts) -> Colors {
-    match opts.color {
-        Color::Auto => {
-            let info = Database::from_env().unwrap();
-            if let Some(cap::MaxColors(n)) = info.get::<cap::MaxColors>() {
-                if n >= 8 {
-                    Colors::default()
-                } else {
-                    Colors::none()
+                let info = match Database::from_env() {
+                    Ok(info) => info,
+                    Err(_) => return Colors::none(),
+                };
+
+                if let Some(cap::MaxColors(n)) = info.get::<cap::MaxColors>() {
+                    if n >= 8 {
+                        return Colors::default();
+                    }
                 }
-            } else {
+
                 Colors::none()
             }
+            Color::Always => Colors::default(),
+            Color::Never => Colors::none(),
         }
-        Color::Always => Colors::default(),
-        Color::Never => Colors::none(),
     }
-}
 
     fn new(file: &str, line_no: &str, pmatch: &str) -> Self {
         Self {
