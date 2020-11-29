@@ -8,6 +8,7 @@ pub struct Colors {
     pub file: String,
     pub line_no: String,
     pub pmatch: String,
+    pub reset: String,
 }
 
 impl Colors {
@@ -18,6 +19,7 @@ impl Colors {
                 if !atty::is(atty::Stream::Stdout) {
                     return Colors::none();
                 }
+
 
                 let term = std::env::var("TERM").unwrap_or_default().to_lowercase();
                 if NOCOLOR_TERMS.contains(&term.as_str()) {
@@ -47,6 +49,7 @@ impl Colors {
             file: col(file),
             line_no: col(line_no),
             pmatch: col(pmatch),
+            reset: "\x1b[0m".to_string(),
         }
     }
 
@@ -55,11 +58,12 @@ impl Colors {
     }
 
     fn none() -> Self {
-        Self::new("", "", "")
-    }
-
-    pub const fn reset() -> &'static str {
-        "\x1b[0m"
+        Self {
+            file: "".to_string(),
+            line_no: "".to_string(),
+            pmatch: "".to_string(),
+            reset: "".to_string(),
+        }
     }
 }
 

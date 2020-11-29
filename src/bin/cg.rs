@@ -99,10 +99,7 @@ fn print_results(opts: &Opts, colors: &Colors, res: &SearchResult) {
     for hit in &res.hits.hits {
         println!(
             "{}https://github.com/{}/blob/master/{}{}",
-            colors.file,
-            hit.repo,
-            hit.path,
-            Colors::reset(),
+            colors.file, hit.repo, hit.path, colors.reset,
         );
 
         let content = &hit.content.snippet;
@@ -121,7 +118,7 @@ fn print_results(opts: &Opts, colors: &Colors, res: &SearchResult) {
             }
             let row = MARK_RE
                 .replace_all(&row, &colors.pmatch as &str)
-                .replace("</mark>", Colors::reset());
+                .replace("</mark>", &colors.reset);
             let row = REMOVE_TAGS_RE.replace_all(&row, "");
 
             let parts = PARSE_LINE_RE.captures(&row).unwrap();
@@ -132,7 +129,7 @@ fn print_results(opts: &Opts, colors: &Colors, res: &SearchResult) {
             if opts.no_line_numbers {
                 println!("{}", line);
             } else {
-                println!("{}{}{}:{}", colors.line_no, no, Colors::reset(), line);
+                println!("{}{}{}:{}", colors.line_no, no, colors.reset, line);
             }
         }
         println!();
