@@ -15,10 +15,14 @@ impl Colors {
     pub fn get(opts: &Opts) -> Colors {
         match opts.color {
             Color::Auto => {
-let term = std::env::var("TERM").unwrap_or_default().to_lowercase();
-if NOCOLOR_TERMS.contains(&term.as_str()) {
-    return Colors::none();
-}
+                if !atty::is(atty::Stream::Stdout) {
+                    return Colors::none();
+                }
+
+                let term = std::env::var("TERM").unwrap_or_default().to_lowercase();
+                if NOCOLOR_TERMS.contains(&term.as_str()) {
+                    return Colors::none();
+                }
 
                 let info = match Database::from_env() {
                     Ok(info) => info,
