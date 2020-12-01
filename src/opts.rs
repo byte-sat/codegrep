@@ -45,9 +45,9 @@ pub struct Opts {
     #[clap(short = 'f')]
     pub show_filters: bool,
 
-    /// How many pages to show (0 means all)
-    #[clap(short, default_value = "5")]
-    pub pages: i64,
+    /// How many pages to show (0 means all, default: 5)
+    #[clap(short)]
+    pub pages: Option<i64>,
 }
 
 #[derive(Clap, PartialEq, Debug)]

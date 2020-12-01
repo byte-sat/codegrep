@@ -1,6 +1,7 @@
 use clap::Clap;
 use lazy_static::lazy_static;
 use regex::Regex;
+use std::cmp::min;
 
 use codegrep::{Colors, GrepApp, Opts, SearchParams, SearchResult};
 
@@ -26,9 +27,9 @@ pub async fn main() {
     let res = ga.search(&params).await.unwrap();
 
     let total_pages = (res.facets.count + PAGE_SIZE - 1) / PAGE_SIZE;
-    let last_page = if opts.pages > 0 {
-        use std::cmp::min;
-        min(opts.pages, total_pages)
+    let last_page = opts.pages.unwrap_or(5);
+    let last_page = if last_page > 0 {
+        min(last_page, total_pages)
     } else {
         total_pages
     };
@@ -85,6 +86,13 @@ pub async fn main() {
 
     while let Some(res) = results.next().await {
         print_results(&opts, &colors, &res);
+    }
+
+    if opts.pages.is_none() && last_page < total_pages {
+        eprintln!(
+            "not all results displayed, {} total pages available",
+            total_pages
+        );
     }
 }
 
